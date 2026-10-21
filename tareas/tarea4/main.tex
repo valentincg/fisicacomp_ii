@@ -3,6 +3,9 @@
 \usepackage[T1]{fontenc}
 \usepackage[spanish]{babel}
 \usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
 \usepackage{booktabs}
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{hyperref}
@@ -11,7 +14,7 @@
 \newcommand{\Ndet}{\textbf{[6]}}        % numero de estrellas detectadas
 \newcommand{\Nnodet}{\textbf{[94]}}    % numero de estrellas no detectadas
 \newcommand{\Pdet}{\textbf{[6]}}        % porcentaje de detectadas
-\newcommand{\Pnodet}{\textbf{[94]}}        % porcentaje de detectadas
+\newcommand{\Pnodet}{\textbf{[94]}}        % porcentaje de no detectadas
 \newcommand{\Fdet}{\textbf{[3.896869e-10]}}        % flujo promedio, detectadas
 \newcommand{\Fnodet}{\textbf{[1.794581e-10]}}    % flujo promedio, no detectadas
 \newcommand{\ddet}{\textbf{[76.682944]}}        % distancia promedio, detectadas
@@ -30,13 +33,8 @@
 % ==================================================================
 \section{Introducción}
 % ==================================================================
-El objetivo de este trabajo es simular un catálogo astronómico y estudiar qué estrellas
-puede detectar un instrumento con una sensibilidad dada. Para ello se relacionan las propiedades
-intrínsecas de una estrella (radio y temperatura efectiva) con la cantidad de energía que
-llega a un observador, que depende además de la distancia.
-
-La energía total que una estrella emite por unidad de tiempo, o luminosidad, se obtiene al
-tratarla como un cuerpo negro de radio $R$ y temperatura efectiva $T_{\mathrm{eff}}$. La ley de
+El objetivo de este trabajo es simular un catálogo astronómico y estudiar qué estrellas puede detectar un instrumento con una sensibilidad dada. Para ello se relacionan las propiedades intrínsecas de una estrella (radio y temperatura efectiva) con la cantidad de energía que llega a un observador, que depende además de la distancia.
+La energía total que una estrella emite por unidad de tiempo, o luminosidad, se obtiene al tratarla como un cuerpo negro de radio $R$ y temperatura efectiva $T_{\mathrm{eff}}$. La ley de
 Stefan-Boltzmann establece que
 \begin{equation}
   L = 4\pi R^{2}\,\sigma_{\mathrm{SB}}\,T_{\mathrm{eff}}^{4},
@@ -49,17 +47,13 @@ El flujo observado es la energía que atraviesa una unidad de área por unidad d
   F = \frac{L}{4\pi d^{2}}.
   \label{eq:flujo}
 \end{equation}
-Esta cantidad es la que mide realmente un telescopio. Dos estrellas con la misma luminosidad
-pueden tener flujos muy distintos si están a distancias diferentes, por lo que el flujo
-determina, junto con la sensibilidad del instrumento, qué objetos pueden ser detectados.
+Esta cantidad es la que mide realmente un telescopio. Dos estrellas con la misma luminosidad pueden tener flujos muy distintos si están a distancias diferentes, por lo que el flujo determina, junto con la sensibilidad del instrumento, qué objetos pueden ser detectados.
 
 % ==================================================================
 \section{Metodología}
 % ==================================================================
 \subsection{Generación del catálogo}
-Se generó una muestra de $N=100$ estrellas con \texttt{NumPy}, utilizando un generador
-pseudoaleatorio con semilla fija para que los resultados sean reproducibles. Las tres
-propiedades se obtuvieron de distribuciones uniformes independientes:
+Se generó una muestra de $N=100$ estrellas con \texttt{NumPy}, utilizando un generador pseudoaleatorio con semilla fija para que los resultados sean reproducibles. Las tres propiedades se obtuvieron de distribuciones uniformes independientes:
 \begin{itemize}
   \item radio estelar: $R \sim \mathcal{U}(0{,}5,\,5)\,R_\odot$;
   \item distancia: $d \sim \mathcal{U}(50,\,500)\ \mathrm{pc}$;
@@ -83,7 +77,64 @@ $F < F_{\mathrm{lim}}$.
 % ==================================================================
 \section{Resultados}
 % ==================================================================
-La luminosidad del catálogo varía entre $\Lmin\,L_\odot$ y $\Lmax\,L_\odot$.
+La Figura~\ref{fig:entrada} muestra las distribuciones de las propiedades de entrada, y la Figura~\ref{fig:derivadas} las de las cantidades derivadas. Como la luminosidad y el flujo abarcan varios órdenes de magnitud, sus histogramas se construyeron con intervalos logarítmicos.
+
+\begin{figure}[ht]
+  \centering
+  \begin{subfigure}[b]{0.32\textwidth}
+    \includegraphics[width=\textwidth]{Grafico temp.png}
+    \caption{$T_{\mathrm{eff}}$}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \includegraphics[width=\textwidth]{Grafico radios.png}
+    \caption{$R$}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.32\textwidth}
+    \includegraphics[width=\textwidth]{Grafico distancias.png}
+    \caption{$d$}
+  \end{subfigure}
+  \caption{Histogramas de las propiedades de entrada del catálogo: (a) temperatura efectiva,
+  (b) radio estelar y (c) distancia. Las tres distribuciones son aproximadamente planas, como
+  corresponde a una muestra uniforme de 100 estrellas.}
+  \label{fig:entrada}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{Distribucion lumi.png}
+    \caption{Luminosidad}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{Distribucion flujo.png}
+    \caption{Flujo observado}
+  \end{subfigure}
+  \caption{Histogramas (escala logarítmica en el eje horizontal) de (a) la luminosidad, en
+  $L_\odot$, y (b) el flujo observado, en $\mathrm{W\,m^{-2}}$.}
+  \label{fig:derivadas}
+\end{figure}
+
+La luminosidad del catálogo varía entre $\Lmin\,L_\odot$ y $\Lmax\,L_\odot$. La
+Figura~\ref{fig:flujo_dist} presenta el flujo en función de la distancia, con la línea
+horizontal que indica $F_{\mathrm{lim}}$, y la Figura~\ref{fig:lt} la luminosidad en función de
+la temperatura efectiva.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.75\textwidth]{Dispercion flujo.png}
+  \caption{Flujo observado en función de la distancia. Los puntos verdes corresponden a
+  estrellas detectadas y los rojos a no detectadas; la línea discontinua indica el límite de
+  detección $F_{\mathrm{lim}}$. El eje vertical está en escala logarítmica.}
+  \label{fig:flujo_dist}
+\end{figure}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.75\textwidth]{L vs T.png}
+  \caption{Luminosidad en función de la temperatura efectiva, con escala logarítmica en la
+  luminosidad y el eje de temperaturas ordenado de mayor a menor.}
+  \label{fig:lt}
+\end{figure}
 
 El resultado de la clasificación se resume en la Tabla~\ref{tab:clasificacion}.
 
@@ -108,25 +159,25 @@ El resultado de la clasificación se resume en la Tabla~\ref{tab:clasificacion}.
 % ==================================================================
 \paragraph{Dependencia de la luminosidad con la temperatura y el radio.}
 Según la ecuación~\eqref{eq:stefan}, $L \propto R^{2}T_{\mathrm{eff}}^{4}$. La dependencia
-con la temperatura es mucho más fuerte: duplicar $T_{\mathrm{eff}}$ multiplica la luminosidad por 16, mientras que duplicar $R$ la multiplica solo por 4. Esto se observa como un aumento de la luminosidad hacia las temperaturas altas, con una dispersión
+con la temperatura es mucho más fuerte: duplicar $T_{\mathrm{eff}}$ multiplica la luminosidad por 16, mientras que duplicar $R$ la multiplica solo por 4. En la Figura~\ref{fig:lt} esto se observa como un aumento de la luminosidad hacia las temperaturas altas, con una dispersión
 vertical causada por las diferencias de radio.
 
 \paragraph{Relación entre distancia y flujo.} 
-De la ecuación~\eqref{eq:flujo}, $F \propto d^{-2}$ para una luminosidad dada. Se aprecia una tendencia decreciente del flujo con la distancia, pero con una dispersión considerable, porque el flujo también depende de $R$ y $T_{\mathrm{eff}}$.
+De la ecuación~\eqref{eq:flujo}, $F \propto d^{-2}$ para una luminosidad dada. En la Figura~\ref{fig:flujo_dist} se aprecia una tendencia decreciente del flujo con la distancia, pero con una dispersión considerable, porque el flujo también depende de $R$ y $T_{\mathrm{eff}}$.
 
 \paragraph{¿Las estrellas cercanas son necesariamente detectadas?}
 No. La detección depende del flujo, que combina la luminosidad intrínseca y la distancia. Una estrella cercana pero poco luminosa (pequeña y fría) puede tener un flujo inferior a
-$F_{\mathrm{lim}}$, mientras que una estrella más lejana pero muy luminosa puede superarlo.
+$F_{\mathrm{lim}}$, mientras que una estrella más lejana pero muy luminosa puede superarlo. En la Figura~\ref{fig:flujo_dist} esto se ve cuando puntos rojos aparecen a distancias menores que algunos puntos verdes.
 
 \paragraph{Influencia de la temperatura y del radio en la detección.}
 Como $F = \sigma_{\mathrm{SB}}\,T_{\mathrm{eff}}^{4}\,(R/d)^{2}$, la condición de detección
-$F \geq F_{\mathrm{lim}}$ equivale a $T_{\mathrm{eff}}^{2}\,R/d \geq \sqrt{F_{\mathrm{lim}}/\sigma_{\mathrm{SB}}}$ (con $R$ y $d$ en las mismas unidades). La temperatura entra al cuadrado y el radio solo de forma lineal, de modo que las estrellas calientes tienen una ventaja mayor para ser detectadas. Un radio grande ayuda, pero no compensa una temperatura baja ni una distancia grande.
+$F \geq F_{\mathrm{lim}}$ equivale a $T_{\mathrm{eff}}^{2}\,R/d \geq \sqrt{F_{\mathrm{lim}}/\sigma_{\mathrm{SB}}}$ (con $R$ y $d$ en las mismas unidades). La temperatura entra al cuadrado y el radio solo de forma lineal, de modo que las estrellas calientes tienen una ventaja mayor para ser detectadas, como lo refleja la temperatura promedio de las estrellas detectadas en la Tabla~\ref{tab:clasificacion}. Un radio grande ayuda, pero no compensa una temperatura baja ni una distancia grande.
 
 \paragraph{Efecto de disminuir el límite de detección.}
-Si $F_{\mathrm{lim}}$ disminuyera, el telescopio sería más sensible y la condición $F \geq F_{\mathrm{lim}}$ la cumplirían más estrellas; el número de estrellas detectadas aumentaría o, como mínimo, no disminuiría.
+Si $F_{\mathrm{lim}}$ disminuyera, el telescopio sería más sensible y la condición $F \geq F_{\mathrm{lim}}$ la cumplirían más estrellas; el número de estrellas detectadas aumentaría o, como mínimo, no disminuiría. En la Figura~\ref{fig:flujo_dist}, la línea horizontal se desplazaría hacia abajo y más puntos quedarían sobre ella.
 
 \paragraph{Estrellas con la misma temperatura y distinta luminosidad.}
-Porque la luminosidad depende también del radio: $L \propto R^{2}T_{\mathrm{eff}}^{4}$. A igual temperatura, la estrella de mayor radio tiene más superficie emisora y, por lo tanto, mayor luminosidad.
+Porque la luminosidad depende también del radio: $L \propto R^{2}T_{\mathrm{eff}}^{4}$. A igual temperatura, la estrella de mayor radio tiene más superficie emisora y, por lo tanto, mayor luminosidad. En la Figura~\ref{fig:lt} esto corresponde a puntos con la misma abscisa y distinta altura.
 
 % ==================================================================
 \section{Conclusiones}
